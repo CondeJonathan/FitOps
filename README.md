@@ -68,7 +68,7 @@ python -m pip install -r requirements.txt
 ### 5. Create database + seed data
 
 ```bash
-python -m scripts.seed
+python -m backend.scripts.seed
 ```
 
 ## 🌱 What `seed.py` does
@@ -98,7 +98,7 @@ Fix:
 - Run:
 
 ```bash
-python -m scripts.seed
+python -m backend.scripts.seed
 ```
 
 ## 👥 Team Notes
@@ -118,3 +118,22 @@ This system uses:
 - Separate tables for member and staff data
 - Shared tables for sessions, bookings, and operations
 - As continue with the front-end update the README
+
+## 🧩 Frontend Team Template
+
+A frontend placement template has been added for team coordination:
+
+- `frontend/README.md`
+- `TEAM_TEMPLATE.md`
+
+Use these folders as the source of truth for where new frontend files should be created.
+
+## 🗂️ Backend Team Template
+
+A backend placement template has been added for team coordination:
+
+- `backend/README.md`
+- `backend/db/`
+- `backend/scripts/`
+
+Use `backend/README.md` as the single backend planning doc.

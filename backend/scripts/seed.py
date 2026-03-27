@@ -7,8 +7,9 @@ multiple times (it checks for existing data before inserting).
 from __future__ import annotations
 
 from datetime import date, time
-from fitops.db.database import Base, SessionLocal, engine
-from fitops.db.models import (
+
+from backend.db.database import Base, SessionLocal, engine
+from backend.db.models import (
     Member,
     MemberStatus,
     MembershipType,
@@ -39,7 +40,7 @@ def seed() -> None:
             db.close()
             raise SystemExit(
                 "Your existing `gym.db` appears to use an older schema (Enum values changed).\n"
-                "Fix: close DB Browser (if open), delete `gym.db`, then run `python -m scripts.seed` again.\n"
+                "Fix: close DB Browser (if open), delete `gym.db`, then run `python -m backend.scripts.seed` again.\n"
                 f"Details: {e}"
             )
 

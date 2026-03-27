@@ -9,7 +9,7 @@ import enum
 from sqlalchemy import Column, Date, DateTime, Enum as SAEnum, ForeignKey, Integer, String, Time, func
 from sqlalchemy.orm import relationship
 
-from fitops.db.database import Base
+from backend.db.database import Base
 
 
 class UserRole(enum.Enum):
