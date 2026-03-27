@@ -1,0 +1,20 @@
+__pycache__/
+*.py[cod]
+*.pyd
+.Python
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Local SQLite database (generated)
+gym.db
+*.db
+
+# Editor / OS
+.vscode/
+.idea/
+*.log
+Thumbs.db
+Desktop.ini
