@@ -1,12 +1,27 @@
 """FitOps ORM models (SQLAlchemy).
 
-Defines the core tables for users, members/staff, training sessions/bookings,
-support tickets, maintenance logs, and payments.
+These models are intentionally demo-friendly: they cover the current frontend
+prototype and the API endpoints needed for a classroom walkthrough.
 """
+
+from __future__ import annotations
 
 import enum
 
-from sqlalchemy import Column, Date, DateTime, Enum as SAEnum, ForeignKey, Integer, String, Time, func
+from sqlalchemy import (
+    Column,
+    Date,
+    DateTime,
+    Enum as SAEnum,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    Time,
+    UniqueConstraint,
+    func,
+)
 from sqlalchemy.orm import relationship
 
 from backend.db.database import Base
@@ -19,18 +34,21 @@ class UserRole(enum.Enum):
 
 class MembershipType(enum.Enum):
     basic = "basic"
+    standard = "standard"
     premium = "premium"
 
 
 class MemberStatus(enum.Enum):
     active = "active"
-    inactive = "inactive"
+    expired = "expired"
+    suspended = "suspended"
 
 
 class StaffPosition(enum.Enum):
     trainer = "trainer"
     admin = "admin"
     maintenance = "maintenance"
+    support = "support"
 
 
 class SessionBookingStatus(enum.Enum):
@@ -48,6 +66,18 @@ class TicketUrgency(enum.Enum):
     low = "low"
     medium = "medium"
     high = "high"
+
+
+class MaintenanceStatus(enum.Enum):
+    open = "open"
+    in_progress = "in_progress"
+    completed = "completed"
+
+
+class PaymentStatus(enum.Enum):
+    pending = "pending"
+    paid = "paid"
+    overdue = "overdue"
 
 
 class User(Base):
@@ -72,9 +102,15 @@ class Member(Base):
     membership_type = Column(SAEnum(MembershipType, name="membership_type"), nullable=False)
     status = Column(SAEnum(MemberStatus, name="member_status"), nullable=False)
     join_date = Column(Date, nullable=False)
+    expiry_date = Column(Date, nullable=False)
+    phone = Column(String(40))
+    emergency_contact = Column(String(120))
+    emergency_phone = Column(String(40))
+    notes = Column(Text)
 
     user = relationship("User", back_populates="member")
     session_bookings = relationship("SessionBooking", back_populates="member", cascade="all, delete-orphan")
+    payments = relationship("Payment", back_populates="member", cascade="all, delete-orphan")
 
 
 class Staff(Base):
@@ -99,7 +135,10 @@ class TrainingSession(Base):
     date = Column(Date, nullable=False)
     start_time = Column(Time, nullable=False)
     end_time = Column(Time, nullable=False)
+    room = Column(String(120), nullable=False)
     capacity = Column(Integer, nullable=False)
+    description = Column(Text)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
 
     trainer = relationship("Staff", back_populates="training_sessions")
     bookings = relationship("SessionBooking", back_populates="session", cascade="all, delete-orphan")
@@ -107,11 +146,13 @@ class TrainingSession(Base):
 
 class SessionBooking(Base):
     __tablename__ = "session_bookings"
+    __table_args__ = (UniqueConstraint("member_id", "session_id", name="uq_member_session"),)
 
     id = Column(Integer, primary_key=True)
     member_id = Column(Integer, ForeignKey("members.id"), nullable=False)
     session_id = Column(Integer, ForeignKey("training_sessions.id"), nullable=False)
     status = Column(SAEnum(SessionBookingStatus, name="session_booking_status"), nullable=False)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
 
     member = relationship("Member", back_populates="session_bookings")
     session = relationship("TrainingSession", back_populates="bookings")
@@ -123,10 +164,11 @@ class Ticket(Base):
     id = Column(Integer, primary_key=True)
     staff_id = Column(Integer, ForeignKey("staff.id"), nullable=False)
     subject = Column(String(200), nullable=False)
-    description = Column(String, nullable=False)
+    description = Column(Text, nullable=False)
     status = Column(SAEnum(TicketStatus, name="ticket_status"), nullable=False)
     urgency = Column(SAEnum(TicketUrgency, name="ticket_urgency"), nullable=False)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
+    updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
 
     staff = relationship("Staff", back_populates="tickets")
 
@@ -136,8 +178,11 @@ class MaintenanceLog(Base):
 
     id = Column(Integer, primary_key=True)
     staff_id = Column(Integer, ForeignKey("staff.id"), nullable=False)
-    description = Column(String, nullable=False)
+    area = Column(String(120), nullable=False)
+    description = Column(Text, nullable=False)
+    status = Column(SAEnum(MaintenanceStatus, name="maintenance_status"), nullable=False)
     log_date = Column(Date, nullable=False)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
 
     staff = relationship("Staff", back_populates="maintenance_logs")
 
@@ -146,4 +191,11 @@ class Payment(Base):
     __tablename__ = "payments"
 
     id = Column(Integer, primary_key=True)
+    member_id = Column(Integer, ForeignKey("members.id"), nullable=False)
+    amount = Column(Float, nullable=False)
+    status = Column(SAEnum(PaymentStatus, name="payment_status"), nullable=False)
+    due_date = Column(Date, nullable=False)
+    paid_at = Column(DateTime)
+    note = Column(Text)
 
+    member = relationship("Member", back_populates="payments")

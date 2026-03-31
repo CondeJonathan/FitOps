@@ -1,6 +1,6 @@
-# 🏋️ FitOps
+# FitOps
 
-Gym management web app built with Python, SQLAlchemy, and SQLite.
+Gym management app with a Flask API, SQLAlchemy ORM, and SQLite storage.
 
 ## 📦 Project Overview
 
@@ -13,127 +13,214 @@ FitOps is a role-based gym management system that includes:
 - Session booking system
 - Ticket system for staff issues
 - Maintenance logs
+- Demo-friendly API endpoints for classroom walkthroughs
 
-## 🗄️ Database Behavior (IMPORTANT)
+## Backend Status
 
-The app uses a local SQLite database file: `gym.db` (created in the project root).
+The backend now provides a runnable API with:
 
-### How it works
+- Bearer-token authentication and member vs staff authorization
+- CRUD endpoints for members, sessions, bookings, tickets, maintenance, and payments
+- Business-rule checks for booking conflicts, trainer conflicts, and safer deletes
+- Standardized JSON responses and paginated list endpoints
+- Demo reset + enum metadata endpoints for local development and presentations
 
-- Importing `database.py`:
-  - Creates a connection
-  - Creates `gym.db` if it does not exist
-- Tables are not created automatically
-- You must run the seed script to create them
-- DB Browser for SQLite simply opens the `gym.db` file
+Routes currently available:
 
-## 🚀 Getting Started (First-Time Setup)
+- `GET /api/health`
+- `GET /api/meta/enums`
+- `POST /api/demo/reset`
+- `POST /api/login`
+- `GET /api/me`
+- `GET /api/staff`
+- `GET /api/members`
+- `POST /api/members`
+- `GET /api/members/<id>`
+- `PATCH /api/members/<id>`
+- `DELETE /api/members/<id>`
+- `GET /api/sessions`
+- `POST /api/sessions`
+- `PATCH /api/sessions/<id>`
+- `DELETE /api/sessions/<id>`
+- `POST /api/sessions/<id>/book`
+- `GET /api/bookings`
+- `POST /api/bookings/<id>/cancel`
+- `GET /api/tickets`
+- `POST /api/tickets`
+- `PATCH /api/tickets/<id>`
+- `GET /api/maintenance`
+- `POST /api/maintenance`
+- `PATCH /api/maintenance/<id>`
+- `GET /api/payments`
+- `POST /api/payments`
+- `PATCH /api/payments/<id>`
+- `GET /api/dashboard/member/<id>`
+- `GET /api/dashboard/staff`
 
-### 1. Navigate to the project folder
+The app uses a local SQLite database file named `gym.db` in the project root by default.
+
+Most application routes now require:
+
+```http
+Authorization: Bearer <token>
+```
+
+Use the token returned by `POST /api/login`.
+
+Successful responses use this shape:
+
+```json
+{
+  "success": true
+}
+```
+
+Error responses use this shape:
+
+```json
+{
+  "success": false,
+  "message": "Validation or authorization message"
+}
+```
+
+List endpoints such as `GET /api/members`, `GET /api/sessions`, `GET /api/bookings`, `GET /api/tickets`,
+`GET /api/maintenance`, and `GET /api/payments` support:
+
+```text
+page=<number>&page_size=<number>
+```
+
+They return both `items` and `meta`:
+
+```json
+{
+  "success": true,
+  "items": [],
+  "meta": {
+    "page": 1,
+    "page_size": 20,
+    "total": 0,
+    "total_pages": 0,
+    "has_next": false,
+    "has_previous": false
+  }
+}
+```
+
+## Getting Started
+
+### 1. Create a virtual environment
 
 ```bash
-cd "path\to\FitOps"
+python3 -m venv .venv
 ```
 
-### 2. Create virtual environment
+### 2. Install dependencies
 
 ```bash
-python -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
 ```
 
-### 3. Activate virtual environment
+### 3. Seed demo data
 
 ```bash
-.\.venv\Scripts\Activate.ps1
+.venv/bin/python -m backend.scripts.seed
 ```
 
-If activation fails (PowerShell security), run this once:
+If you want a clean rebuild after schema changes:
 
 ```bash
-Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+rm -f gym.db
+FITOPS_RESET_DB=1 .venv/bin/python -m backend.scripts.seed
 ```
 
-Type `Y`, then retry:
+### 4. Start the API server
 
 ```bash
-.\.venv\Scripts\Activate.ps1
+.venv/bin/python -m backend.app
 ```
 
-### 4. Install dependencies
+If port `5000` is busy on your machine:
 
 ```bash
-python -m pip install -r requirements.txt
+FITOPS_PORT=5050 .venv/bin/python -m backend.app
 ```
 
-### 5. Create database + seed data
+### 5. Run the backend tests
 
 ```bash
-python -m backend.scripts.seed
+.venv/bin/python -m unittest discover -s backend/tests
 ```
 
-## 🌱 What `seed.py` does
+## Demo Credentials
 
-Creates all database tables using:
+- `member@test.com / member123`
+- `staff@test.com / staff123`
+- All other `*.demo` accounts use `demo123`
 
-```python
-Base.metadata.create_all(bind=engine)
-```
+## Auth Flow
 
-Inserts sample data (only if missing):
+1. `POST /api/login` with email, password, and role
+2. Copy the returned `token`
+3. Send `Authorization: Bearer <token>` on protected routes
+4. Optionally call `GET /api/me` to confirm the logged-in profile
 
-- 1 staff user
-- 1 member user
-- 1 training session
-- 1 booking
-- 1 ticket
+## What `seed.py` creates
 
-## ⚠️ If you already have an old `gym.db`
+The seed script creates and updates demo data for:
 
-If your database schema changed, you may get errors.
+- 6 staff accounts
+- 6 member accounts
+- 6 training sessions
+- multiple bookings
+- multiple tickets
+- multiple maintenance logs
+- sample payments
 
-Fix:
+## Quick Demo Flow
 
-- Close DB Browser (if open)
-- Delete `gym.db`
-- Run:
+Use these API calls in class if you want a fast backend walkthrough:
 
-```bash
-python -m backend.scripts.seed
-```
+1. `POST /api/login` with the member account
+2. `GET /api/me`
+3. `GET /api/sessions`
+4. `POST /api/sessions/2/book`
+5. Login as staff and call `GET /api/dashboard/staff`
+6. `POST /api/payments` to create a membership payment
+7. `GET /api/tickets`
+8. `GET /api/maintenance`
+9. `POST /api/demo/reset` if you want to restore the seeded state before another demo round
 
-## 👥 Team Notes
+## Good Next Backend Steps
 
-- DO NOT commit `gym.db` 
+If you keep building this after class, the next high-value improvements are:
+
+- move route handlers into blueprints or service modules
+- add database migrations instead of rebuilding `gym.db`
+- switch from SQLite to PostgreSQL for team or production use
+- add OpenAPI docs and broader integration tests
+
+## Team Notes
+
+- Do not commit `gym.db`
 - Recommended workflow:
   - Clone repo
   - Run setup steps
   - Generate your own local database
 
-## 🧠 Key Idea
+## Project Structure
 
-This system uses:
+Key backend files:
 
-- One `users` table for authentication
-- Role-based logic (member vs staff)
-- Separate tables for member and staff data
-- Shared tables for sessions, bookings, and operations
-- As continue with the front-end update the README
+- `backend/app.py` - Flask API routes
+- `backend/db/database.py` - SQLAlchemy engine/session setup
+- `backend/db/models.py` - ORM models
+- `backend/scripts/seed.py` - demo data seeding
+- `backend/security.py` - password hashing helpers
+- `backend/tests/test_api.py` - backend smoke tests
 
-## 🧩 Frontend Team Template
-
-A frontend placement template has been added for team coordination:
+Frontend planning files remain in:
 
 - `frontend/README.md`
 - `TEAM_TEMPLATE.md`
-
-Use these folders as the source of truth for where new frontend files should be created.
-
-## 🗂️ Backend Team Template
-
-A backend placement template has been added for team coordination:
-
-- `backend/README.md`
-- `backend/db/`
-- `backend/scripts/`
-
-Use `backend/README.md` as the single backend planning doc.
