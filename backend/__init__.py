@@ -1,2 +1,0 @@
-"""FitOps backend package."""
-

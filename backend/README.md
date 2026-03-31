@@ -1,146 +1,62 @@
-# FitOps Backend Team README
+# FitOps Backend
 
-Use this as the single backend planning and progress document.
-Each teammate should update their assigned section as they build.
-Do not create per-folder README files; all backend updates belong in this file.
+Backend API for FitOps, built with Flask and SQLAlchemy.
 
-## Current Backend Snapshot
+## Core Files
 
-Current backend is ready for classroom demos and team development with:
+- `backend/server.py`: Flask app and API routes
+- `backend/db/database.py`: engine/session setup and DB initialization
+- `backend/db/models.py`: ORM models and enums
+- `backend/scripts/seed.py`: local seed data for development
 
-- Flask API entrypoint: `backend/app.py`
-- SQLAlchemy models in `backend/db/models.py`
-- Demo seed data in `backend/scripts/seed.py`
-- Password hashing helper in `backend/security.py`
-- Local tests in `backend/tests/`
-- CRUD coverage for members, sessions, tickets, maintenance, and payments
-- Demo utility endpoints for enum metadata and full demo reset
-- Bearer-token authentication for protected routes
-- Role-based authorization for member vs staff behavior
-- Standardized `success` / `message` JSON envelopes
-- Pagination support on list endpoints with `page` and `page_size`
+## Backend Setup
 
-Useful commands:
+From the repository root:
 
 ```bash
-python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt
-.venv/bin/python -m backend.scripts.seed
-.venv/bin/python -m backend.app
+python -m venv .venv
+.venv\Scripts\activate
+python -m pip install -r requirements.txt
+python -m backend.scripts.seed
+python .\backend\server.py
 ```
 
-If you need a clean rebuild after schema changes:
+API base URL: `http://127.0.0.1:5000`
 
-```bash
-rm -f gym.db
-FITOPS_RESET_DB=1 .venv/bin/python -m backend.scripts.seed
-```
+## API Route Map
 
-Run tests:
+### General
 
-```bash
-.venv/bin/python -m unittest discover -s backend/tests
-```
+- `GET /`
+- `GET /api/health`
 
-Demo credentials:
+### Authentication
 
-- `member@test.com / member123`
-- `staff@test.com / staff123`
-- other seeded `*.demo` users: `demo123`
+- `POST /api/register`
+- `POST /api/login`
 
-Protected API usage:
+### Member
 
-1. Call `POST /api/login`
-2. Copy `token` from the response
-3. Send `Authorization: Bearer <token>` on protected requests
+- `GET /api/classes`
+- `GET /api/member/dashboard`
+- `POST /api/classes/<session_id>/toggle-booking`
 
-List response pattern:
+### Staff
 
-```json
-{
-  "success": true,
-  "items": [],
-  "meta": {
-    "page": 1,
-    "page_size": 20,
-    "total": 0,
-    "total_pages": 0,
-    "has_next": false,
-    "has_previous": false
-  }
-}
-```
+- `GET /api/staff/dashboard`
+- `POST /api/staff/tickets`
+- `POST /api/staff/maintenance`
+- `POST /api/staff/grant-role`
 
-Validation and auth failures return:
+## Development Notes
 
-```json
-{
-  "success": false,
-  "message": "Readable error message"
-}
-```
+- CORS is enabled in `server.py` for frontend development.
+- Staff-role behavior uses email/domain logic and role data from the DB.
+- Password verification currently supports hashed values and legacy plain-text fallback for older local data.
 
-## Goals
+## Team Workflow
 
-- Keep backend planning in one place
-- Organize database and backend logic clearly
-- Reduce overlap while working in one shared `main` branch
-
-## Folder Structure
-
-Current backend structure:
-
-- `db/` for database setup and ORM models
-- `scripts/` for seeding and backend utility scripts
-
-Current source-of-truth files:
-
-- `db/database.py`
-- `db/models.py`
-- `scripts/seed.py`
-
-## Team Update Rules
-
-1. Pull latest `main` before starting work.
-2. Work only in your assigned backend area.
-3. Keep commits focused on one backend feature.
-4. Coordinate before editing shared files.
-5. Update this README section status when you start/finish work.
-
-## Backend Work Sections (Team Updates)
-
-Use this format in every section:
-
-- Owner:
-- Status: Not started | In progress | Done
-- Last updated:
-- Notes:
-- Blocking issues:
-
----
-
-## 1) Database Layer
-
-- Folder: `db/`
-- Owner:
-- Status:
-- Last updated:
-- Notes:
-- Blocking issues:
-
-## 2) Seed + Utility Scripts
-
-- Folder: `scripts/`
-- Owner:
-- Status:
-- Last updated:
-- Notes:
-- Blocking issues:
-
-## Backend Merge Conflict Prevention Checklist
-
-- [ ] Pulled latest `main` before starting
-- [ ] Limited edits to assigned backend area
-- [ ] Coordinated shared-file changes
-- [ ] Updated this backend README status
-- [ ] Commit message clearly matches backend change
+- Pull latest `main` before backend changes.
+- Keep backend commits focused by feature/area.
+- Coordinate before changing shared files like `server.py` or `models.py`.
+- Re-run the seed script after schema updates.

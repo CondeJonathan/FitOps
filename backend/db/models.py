@@ -1,9 +1,3 @@
-"""FitOps ORM models (SQLAlchemy).
-
-These models are intentionally demo-friendly: they cover the current frontend
-prototype and the API endpoints needed for a classroom walkthrough.
-"""
-
 from __future__ import annotations
 
 import enum
@@ -111,6 +105,7 @@ class Member(Base):
     user = relationship("User", back_populates="member")
     session_bookings = relationship("SessionBooking", back_populates="member", cascade="all, delete-orphan")
     payments = relationship("Payment", back_populates="member", cascade="all, delete-orphan")
+    membership_audit_logs = relationship("MembershipAuditLog", back_populates="member", cascade="all, delete-orphan")
 
 
 class Staff(Base):
@@ -124,6 +119,7 @@ class Staff(Base):
     training_sessions = relationship("TrainingSession", back_populates="trainer", cascade="all, delete-orphan")
     tickets = relationship("Ticket", back_populates="staff", cascade="all, delete-orphan")
     maintenance_logs = relationship("MaintenanceLog", back_populates="staff", cascade="all, delete-orphan")
+    membership_audit_logs = relationship("MembershipAuditLog", back_populates="staff", cascade="all, delete-orphan")
 
 
 class TrainingSession(Base):
@@ -199,3 +195,21 @@ class Payment(Base):
     note = Column(Text)
 
     member = relationship("Member", back_populates="payments")
+
+
+class MembershipAuditLog(Base):
+    __tablename__ = "membership_audit_logs"
+
+    id = Column(Integer, primary_key=True)
+    member_id = Column(Integer, ForeignKey("members.id"), nullable=False)
+    staff_id = Column(Integer, ForeignKey("staff.id"), nullable=False)
+    action = Column(String(50), nullable=False)
+    old_status = Column(SAEnum(MemberStatus, name="member_status"), nullable=False)
+    new_status = Column(SAEnum(MemberStatus, name="member_status"), nullable=False)
+    old_membership_type = Column(SAEnum(MembershipType, name="membership_type"), nullable=False)
+    new_membership_type = Column(SAEnum(MembershipType, name="membership_type"), nullable=False)
+    note = Column(Text)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+
+    member = relationship("Member", back_populates="membership_audit_logs")
+    staff = relationship("Staff", back_populates="membership_audit_logs")

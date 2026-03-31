@@ -8,9 +8,28 @@ __pycache__/
 venv/
 ENV/
 
+# Environment variables / secrets
+.env
+.env.*
+!.env.example
+
 # Local SQLite database (generated)
 gym.db
 *.db
+*.db-wal
+*.db-shm
+
+# Python caches / test artifacts
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Frontend dependencies/build output
+frontend/node_modules/
+frontend/dist/
 
 # Editor / OS
 .vscode/
@@ -18,6 +37,7 @@ gym.db
 *.log
 Thumbs.db
 Desktop.ini
+.DS_Store
 
 # Frontend local build artifacts
 node_modules/

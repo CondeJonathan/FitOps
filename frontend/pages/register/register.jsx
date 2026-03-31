@@ -1,18 +1,5 @@
-import React, { useState } from "react";
+import { useMemo, useState } from "react";
 
-/**
- * FitOps Login Page
- * Owner: Hanyi Yang
- * Folder: frontend/pages/login/
- *
- * Connects to POST /api/login
- * Expected request body:  { email, password, role }
- * Expected response:      { success, token, role, name, user, profile }
- *
- * Seed test accounts (run backend/scripts/seed.py first):
- *   member@test.com  / member123
- *   staff@test.com   / staff123
- */
 const STYLES = {
   page: {
     minHeight: "100vh",
@@ -31,14 +18,14 @@ const STYLES = {
   },
   shell: {
     width: "100%",
-    maxWidth: 520,
+    maxWidth: 560,
     margin: "0 auto",
     position: "relative",
   },
   glowTop: {
     position: "absolute",
-    width: 240,
-    height: 240,
+    width: 250,
+    height: 250,
     borderRadius: "50%",
     background: "radial-gradient(circle, rgba(56,189,248,0.32) 0%, rgba(56,189,248,0) 68%)",
     top: -90,
@@ -47,8 +34,8 @@ const STYLES = {
   },
   glowBottom: {
     position: "absolute",
-    width: 240,
-    height: 240,
+    width: 250,
+    height: 250,
     borderRadius: "50%",
     background: "radial-gradient(circle, rgba(34,211,238,0.22) 0%, rgba(34,211,238,0) 68%)",
     bottom: -100,
@@ -73,7 +60,7 @@ const STYLES = {
   subtitle: { fontSize: 14, color: "#93c5fd", marginTop: 6, textAlign: "center" },
   card: {
     width: "100%",
-    maxWidth: 400,
+    maxWidth: 420,
     background: "rgba(15, 23, 42, 0.85)",
     border: "1.5px solid #334155",
     borderRadius: 16,
@@ -104,13 +91,6 @@ const STYLES = {
   inputFocus: { borderColor: "#38bdf8" },
   inputError: { borderColor: "#ef4444" },
   errorMsg: { fontSize: 12, color: "#ef4444", marginTop: 5 },
-  forgotRow: { textAlign: "right", marginTop: 4 },
-  forgotLink: {
-    fontSize: 12,
-    color: "#67e8f9",
-    textDecoration: "none",
-    cursor: "pointer",
-  },
   submitBtn: {
     width: "100%",
     padding: "11px 0",
@@ -121,7 +101,7 @@ const STYLES = {
     fontWeight: 700,
     fontSize: 15,
     cursor: "pointer",
-    marginTop: 20,
+    marginTop: 18,
     transition: "background 0.15s",
     letterSpacing: 0.3,
   },
@@ -147,40 +127,23 @@ const STYLES = {
     marginTop: 14,
     textAlign: "center",
   },
-  divider: {
-    display: "flex",
-    alignItems: "center",
-    gap: 10,
-    margin: "20px 0 4px",
-  },
-  dividerLine: { flex: 1, height: 1, background: "#334155" },
-  dividerText: { fontSize: 12, color: "#94a3b8", whiteSpace: "nowrap" },
-  roleRow: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: 8,
-    marginTop: 8,
-  },
-  roleBtn: (active) => ({
-    padding: "9px 0",
-    borderRadius: 8,
-    border: `1.5px solid ${active ? "#22d3ee" : "#334155"}`,
-    background: active ? "#0e7490" : "#1e293b",
-    color: active ? "#ecfeff" : "#94a3b8",
-    fontWeight: active ? 700 : 500,
-    fontSize: 13,
-    cursor: "pointer",
-    transition: "all 0.15s",
-    textAlign: "center",
-  }),
   footer: {
-    marginTop: 24,
+    marginTop: 18,
     fontSize: 12,
     color: "#94a3b8",
     textAlign: "center",
   },
+  linkBtn: {
+    background: "none",
+    border: "none",
+    color: "#67e8f9",
+    cursor: "pointer",
+    padding: 0,
+    fontSize: 12,
+    fontWeight: 600,
+  },
   poweredBy: {
-    marginTop: 14,
+    marginTop: 12,
     textAlign: "center",
     fontSize: 12,
     color: "#67e8f9",
@@ -189,57 +152,76 @@ const STYLES = {
   },
 };
 
-export default function LoginPage({ onLoginSuccess, onGoToRegister }) {
-  const [email, setEmail]           = useState("");
-  const [password, setPassword]     = useState("");
-  const [showPassword, setShowPw]   = useState(false);
-  const [focused, setFocused]       = useState(null);
-  const [hoverBtn, setHoverBtn]     = useState(false);
-  const [loading, setLoading]       = useState(false);
-  const [errors, setErrors]         = useState({});
-  const [serverMsg, setServerMsg]   = useState(null);
-  const [serverOk, setServerOk]     = useState(false);
+export default function RegisterPage({ onGoToLogin, onRegisterSuccess }) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPw] = useState(false);
+  const [focused, setFocused] = useState(null);
+  const [hoverBtn, setHoverBtn] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [serverMsg, setServerMsg] = useState(null);
+  const [serverOk, setServerOk] = useState(false);
 
   const API_BASE = "http://127.0.0.1:5000";
-  const loginUrl = `${API_BASE}/api/login`;
+  const registerUrl = `${API_BASE}/api/register`;
 
   const validate = () => {
     const e = {};
-    if (!email.trim())   e.email    = "Email is required.";
+    if (!name.trim()) e.name = "Name is required.";
+    if (!email.trim()) e.email = "Email is required.";
     else if (!/\S+@\S+\.\S+/.test(email)) e.email = "Enter a valid email address.";
-    if (!password)       e.password = "Password is required.";
+    if (!password) e.password = "Password is required.";
     return e;
   };
+
+  const inputStyle = (field) => ({
+    ...STYLES.input,
+    ...(focused === field ? STYLES.inputFocus : {}),
+    ...(errors[field] ? STYLES.inputError : {}),
+  });
+
+  const btnStyle = useMemo(() => {
+    if (loading) return STYLES.submitBtnLoading;
+    if (hoverBtn) return { ...STYLES.submitBtn, ...STYLES.submitBtnHover };
+    return STYLES.submitBtn;
+  }, [hoverBtn, loading]);
 
   const handleSubmit = async (evt) => {
     evt.preventDefault();
     setServerMsg(null);
+
     const e = validate();
-    if (Object.keys(e).length) { setErrors(e); return; }
+    if (Object.keys(e).length) {
+      setErrors(e);
+      return;
+    }
+
     setErrors({});
     setLoading(true);
 
     try {
-      const res = await fetch(loginUrl, {
+      const res = await fetch(registerUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim(), password }),
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          password,
+        }),
       });
 
-      if (res.ok) {
-        const data = await res.json().catch(() => ({}));
-        if (!data?.success) {
-          setServerOk(false);
-          setServerMsg(data.message || "Login failed. Please try again.");
-          return;
-        }
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok && data.success) {
         setServerOk(true);
-        setServerMsg(`Welcome back, ${data.name || "User"}! Redirecting…`);
-        if (typeof onLoginSuccess === "function") onLoginSuccess(data);
+        setServerMsg("Account created! Redirecting…");
+        if (typeof onRegisterSuccess === "function") onRegisterSuccess(data);
+        else if (typeof onGoToLogin === "function") onGoToLogin();
       } else {
-        const data = await res.json().catch(() => ({}));
         setServerOk(false);
-        setServerMsg(data.message || "Invalid email or password. Please try again.");
+        setServerMsg(data.message || "Could not create your account. Please try again.");
       }
     } catch {
       setServerOk(false);
@@ -249,18 +231,6 @@ export default function LoginPage({ onLoginSuccess, onGoToRegister }) {
     }
   };
 
-  const inputStyle = (field) => ({
-    ...STYLES.input,
-    ...(focused === field ? STYLES.inputFocus : {}),
-    ...(errors[field]    ? STYLES.inputError  : {}),
-  });
-
-  const btnStyle = loading
-    ? STYLES.submitBtnLoading
-    : hoverBtn
-    ? { ...STYLES.submitBtn, ...STYLES.submitBtnHover }
-    : STYLES.submitBtn;
-
   return (
     <div style={STYLES.page}>
       <div style={STYLES.shell}>
@@ -268,12 +238,31 @@ export default function LoginPage({ onLoginSuccess, onGoToRegister }) {
         <div style={STYLES.glowBottom} />
         <div style={{ marginBottom: 4, textAlign: "center" }}>
           <div style={STYLES.logo}>FI</div>
-          <div style={STYLES.title}>FitIOps Member Portal</div>
-          <div style={STYLES.subtitle}>Sign in to manage classes, check-ins, and gym operations</div>
+          <div style={STYLES.title}>Create your account</div>
+          <div style={STYLES.subtitle}>Register to access memberships, classes, and facility support tools</div>
         </div>
 
         <div style={STYLES.card}>
           <form onSubmit={handleSubmit} noValidate>
+          <div style={STYLES.fieldWrap}>
+            <label style={STYLES.label} htmlFor="fitops-name">Name</label>
+            <input
+              id="fitops-name"
+              type="text"
+              autoComplete="name"
+              placeholder="Jane Doe"
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                setErrors((p) => ({ ...p, name: null }));
+              }}
+              onFocus={() => setFocused("name")}
+              onBlur={() => setFocused(null)}
+              style={inputStyle("name")}
+            />
+            {errors.name && <div style={STYLES.errorMsg}>{errors.name}</div>}
+          </div>
+
           <div style={STYLES.fieldWrap}>
             <label style={STYLES.label} htmlFor="fitops-email">Email</label>
             <input
@@ -282,7 +271,10 @@ export default function LoginPage({ onLoginSuccess, onGoToRegister }) {
               autoComplete="username"
               placeholder="you@example.com"
               value={email}
-              onChange={(e) => { setEmail(e.target.value); setErrors((p) => ({ ...p, email: null })); }}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setErrors((p) => ({ ...p, email: null }));
+              }}
               onFocus={() => setFocused("email")}
               onBlur={() => setFocused(null)}
               style={inputStyle("email")}
@@ -296,10 +288,13 @@ export default function LoginPage({ onLoginSuccess, onGoToRegister }) {
               <input
                 id="fitops-password"
                 type={showPassword ? "text" : "password"}
-                autoComplete="current-password"
+                autoComplete="new-password"
                 placeholder="••••••••"
                 value={password}
-                onChange={(e) => { setPassword(e.target.value); setErrors((p) => ({ ...p, password: null })); }}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setErrors((p) => ({ ...p, password: null }));
+                }}
                 onFocus={() => setFocused("password")}
                 onBlur={() => setFocused(null)}
                 style={{ ...inputStyle("password"), paddingRight: 40 }}
@@ -307,16 +302,24 @@ export default function LoginPage({ onLoginSuccess, onGoToRegister }) {
               <button
                 type="button"
                 onClick={() => setShowPw((p) => !p)}
-                style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#94a3b8", padding: 0, fontSize: 13 }}
+                style={{
+                  position: "absolute",
+                  right: 10,
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "#94a3b8",
+                  padding: 0,
+                  fontSize: 13,
+                }}
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? "Hide" : "Show"}
               </button>
             </div>
             {errors.password && <div style={STYLES.errorMsg}>{errors.password}</div>}
-            <div style={STYLES.forgotRow}>
-              <span style={STYLES.forgotLink}>Forgot password?</span>
-            </div>
           </div>
 
           <button
@@ -326,7 +329,7 @@ export default function LoginPage({ onLoginSuccess, onGoToRegister }) {
             onMouseEnter={() => setHoverBtn(true)}
             onMouseLeave={() => setHoverBtn(false)}
           >
-            {loading ? "Signing in…" : "Sign In"}
+            {loading ? "Creating account…" : "Create Account"}
           </button>
 
           {serverMsg && (
@@ -335,23 +338,17 @@ export default function LoginPage({ onLoginSuccess, onGoToRegister }) {
             </div>
           )}
 
-          <div style={{ marginTop: 14, textAlign: "center", fontSize: 12, color: "#94a3b8" }}>
-            New here?{" "}
-            <button
-              type="button"
-              onClick={onGoToRegister}
-              style={{ background: "none", border: "none", color: "#67e8f9", cursor: "pointer", padding: 0, fontSize: 12, fontWeight: 600 }}
-            >
-              Create an account
+          <div style={STYLES.footer}>
+            Already have an account?{" "}
+            <button type="button" style={STYLES.linkBtn} onClick={onGoToLogin}>
+              Sign in
             </button>
           </div>
           </form>
         </div>
-
-        <div style={STYLES.footer}>
-          Powered by FitOps
-        </div>
+        <div style={STYLES.poweredBy}>Powered by FitOps</div>
       </div>
     </div>
   );
 }
+
