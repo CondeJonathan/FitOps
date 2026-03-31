@@ -6,12 +6,12 @@ import { useState } from "react";
  * Folder: frontend/pages/login/
  *
  * Connects to POST /api/login
- * Expected request body:  { email, password }
- * Expected response:       { success, role, name, message }
+ * Expected request body:  { email, password, role }
+ * Expected response:      { success, token, role, name, user, profile }
  *
  * Seed test accounts (run backend/scripts/seed.py first):
- *   member@test.com  / hashed_password_member
- *   staff@test.com   / hashed_password_staff
+ *   member@test.com  / member123
+ *   staff@test.com   / staff123
  */
 
 const STYLES = {
@@ -180,15 +180,6 @@ export default function LoginPage({ onLoginSuccess }) {
     setLoading(true);
 
     try {
-      /**
-       * TODO: replace with real API endpoint once backend is ready.
-       * Jonathan's backend uses SQLite via SQLAlchemy; the route should
-       * query the `users` table by email, verify password_hash, and
-       * return { success, role, name }.
-       *
-       * Example backend route (Flask):
-       *   POST /api/login  →  { email, password }
-       */
       const res = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -210,8 +201,8 @@ export default function LoginPage({ onLoginSuccess }) {
     } catch {
       // ── DEMO FALLBACK (remove once /api/login is live) ──────────────
       const DEMO = {
-        "member@test.com": { password: "hashed_password_member", role: "member", name: "Test Member User" },
-        "staff@test.com":  { password: "hashed_password_staff",  role: "staff",  name: "Test Staff User"  },
+        "member@test.com": { password: "member123", role: "member", name: "Test Member User" },
+        "staff@test.com":  { password: "staff123",  role: "staff",  name: "Test Staff User"  },
       };
       const match = DEMO[email.trim()];
       if (match && match.password === password) {
@@ -345,7 +336,7 @@ export default function LoginPage({ onLoginSuccess }) {
       </div>
 
       <div style={STYLES.footer}>
-        Demo accounts: member@test.com · staff@test.com
+        Demo accounts: member@test.com / member123 · staff@test.com / staff123
       </div>
     </div>
   );
