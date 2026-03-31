@@ -18,3 +18,7 @@ gym.db
 *.log
 Thumbs.db
 Desktop.ini
+
+# Frontend local build artifacts
+node_modules/
+dist/
