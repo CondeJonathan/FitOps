@@ -14,16 +14,16 @@ Do not create per-folder README files; all updates belong in this file.
 
 Use this structure when adding files:
 
-- `pages/login/`
-- `pages/member-dashboard/`
-- `pages/staff-dashboard/`
-- `pages/schedule/`
-- `pages/booking/`
-- `pages/member-status/`
-- `pages/tickets/`
-- `pages/maintenance/`
-- `components/shared/`
-- `services/`
+- `src/pages/login/`
+- `src/pages/member-dashboard/`
+- `src/pages/staff-dashboard/`
+- `src/pages/schedule/`
+- `src/pages/booking/`
+- `src/pages/member-status/`
+- `src/pages/tickets/`
+- `src/pages/maintenance/`
+- `src/components/shared/`
+- `src/services/`
 
 ## Team Update Rules
 
@@ -79,7 +79,7 @@ Use this format in every section:
 
 ## 1) Login Page
 
-- Folder: `pages/login/`
+- Folder: `src/pages/login/`
 - Owner:
 - Status:
 - Last updated:
@@ -88,7 +88,7 @@ Use this format in every section:
 
 ## 2) Member Dashboard
 
-- Folder: `pages/member-dashboard/`
+- Folder: `src/pages/member-dashboard/`
 - Owner:
 - Status:
 - Last updated:
@@ -97,7 +97,7 @@ Use this format in every section:
 
 ## 3) Staff Dashboard
 
-- Folder: `pages/staff-dashboard/`
+- Folder: `src/pages/staff-dashboard/`
 - Owner:
 - Status:
 - Last updated:
@@ -106,7 +106,7 @@ Use this format in every section:
 
 ## 4) Schedule
 
-- Folder: `pages/schedule/`
+- Folder: `src/pages/schedule/`
 - Owner:
 - Status:
 - Last updated:
@@ -115,7 +115,7 @@ Use this format in every section:
 
 ## 5) Booking
 
-- Folder: `pages/booking/`
+- Folder: `src/pages/booking/`
 - Owner:
 - Status:
 - Last updated:
@@ -124,7 +124,7 @@ Use this format in every section:
 
 ## 6) Member Status
 
-- Folder: `pages/member-status/`
+- Folder: `src/pages/member-status/`
 - Owner:
 - Status:
 - Last updated:
@@ -133,7 +133,7 @@ Use this format in every section:
 
 ## 7) Tickets (Staff)
 
-- Folder: `pages/tickets/`
+- Folder: `src/pages/tickets/`
 - Owner:
 - Status:
 - Last updated:
@@ -142,7 +142,7 @@ Use this format in every section:
 
 ## 8) Maintenance Tracking (Staff)
 
-- Folder: `pages/maintenance/`
+- Folder: `src/pages/maintenance/`
 - Owner:
 - Status:
 - Last updated:
@@ -151,7 +151,7 @@ Use this format in every section:
 
 ## Shared Components
 
-- Folder: `components/shared/`
+- Folder: `src/components/shared/`
 - Owner:
 - Status:
 - Last updated:
@@ -160,7 +160,7 @@ Use this format in every section:
 
 ## Services / API Layer
 
-- Folder: `services/`
+- Folder: `src/services/`
 - Owner:
 - Status:
 - Last updated:

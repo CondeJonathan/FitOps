@@ -22,7 +22,7 @@ python -m venv .venv
 .venv\Scripts\activate
 python -m pip install -r requirements.txt
 python -m backend.scripts.seed
-python .\backend\server.py
+python -m backend.server
 ```
 
 Backend runs on `http://127.0.0.1:5000`.

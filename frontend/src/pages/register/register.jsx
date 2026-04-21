@@ -3,152 +3,149 @@ import { useMemo, useState } from "react";
 const STYLES = {
   page: {
     minHeight: "100vh",
-    width: "100vw",
-    position: "fixed",
-    inset: 0,
-    background: "linear-gradient(160deg, #0b1120 0%, #111827 45%, #1f2937 100%)",
+    width: "100%",
+    display: "flex",
+    background: "var(--page-bg)",
+    fontFamily: "'Inter', 'SF Pro Display', ui-sans-serif, system-ui, sans-serif",
+  },
+  left: {
+    width: "40%",
+    minHeight: "100vh",
+    background: "linear-gradient(160deg, #1A1A2E 0%, #2D2D44 60%, #E8400C 100%)",
     display: "flex",
     flexDirection: "column",
+    justifyContent: "center",
+    padding: "48px 40px",
+    boxSizing: "border-box",
+  },
+  right: {
+    width: "60%",
+    minHeight: "100vh",
+    background: "var(--page-bg)",
+    display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    fontFamily: "'Inter', 'Poppins', 'Segoe UI', system-ui, sans-serif",
-    padding: "24px 16px",
+    padding: "48px 40px",
     boxSizing: "border-box",
-    overflowY: "auto",
   },
-  shell: {
-    width: "100%",
-    maxWidth: 560,
-    margin: "0 auto",
-    position: "relative",
-  },
-  glowTop: {
-    position: "absolute",
-    width: 250,
-    height: 250,
-    borderRadius: "50%",
-    background: "radial-gradient(circle, rgba(56,189,248,0.32) 0%, rgba(56,189,248,0) 68%)",
-    top: -90,
-    left: -90,
-    pointerEvents: "none",
-  },
-  glowBottom: {
-    position: "absolute",
-    width: 250,
-    height: 250,
-    borderRadius: "50%",
-    background: "radial-gradient(circle, rgba(34,211,238,0.22) 0%, rgba(34,211,238,0) 68%)",
-    bottom: -100,
-    right: -90,
-    pointerEvents: "none",
-  },
-  logo: {
-    width: 56,
-    height: 56,
-    background: "linear-gradient(135deg,#22d3ee,#38bdf8)",
+  brandRow: { display: "flex", alignItems: "center", gap: 12, marginBottom: 18 },
+  brandMark: {
+    width: 64,
+    height: 64,
     borderRadius: 16,
+    background: "linear-gradient(135deg, #E8400C, #F4875E)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     fontWeight: 800,
     fontSize: 22,
     color: "#fff",
-    margin: "0 auto 16px",
     userSelect: "none",
   },
-  title: { fontSize: 24, fontWeight: 700, color: "#e0f2fe", textAlign: "center" },
-  subtitle: { fontSize: 14, color: "#93c5fd", marginTop: 6, textAlign: "center" },
+  brandName: {
+    fontSize: 32,
+    fontWeight: 800,
+    color: "rgba(255,255,255,0.98)",
+    letterSpacing: "-1px",
+    margin: 0,
+    lineHeight: 1.1,
+  },
+  tagline: {
+    marginTop: 10,
+    fontSize: 15,
+    color: "rgba(255,255,255,0.6)",
+    maxWidth: 420,
+  },
+  featureList: { marginTop: 18, display: "grid", gap: 10 },
+  featureRow: { display: "flex", alignItems: "center", gap: 10, color: "rgba(255,255,255,0.75)", fontSize: 13 },
+  featureDot: { width: 8, height: 8, borderRadius: 999, background: "var(--brand-mid)", flex: "0 0 auto" },
+  poweredByLeft: { marginTop: 26, fontSize: 12, color: "rgba(255,255,255,0.3)" },
+
   card: {
+    background: "var(--white)",
+    borderRadius: "var(--radius-xl)",
+    padding: 40,
+    boxShadow: "var(--shadow-lg)",
+    border: "1px solid var(--gray-lighter)",
     width: "100%",
     maxWidth: 420,
-    background: "rgba(15, 23, 42, 0.85)",
-    border: "1.5px solid #334155",
-    borderRadius: 16,
-    padding: "28px 28px 24px",
-    margin: "28px auto 0",
-    boxShadow: "0 12px 28px rgba(2, 6, 23, 0.45)",
+    boxSizing: "border-box",
   },
+  cardTitle: { fontSize: 22, fontWeight: 800, color: "var(--charcoal)", letterSpacing: "-0.4px", margin: 0 },
+  cardSubtitle: { fontSize: 13, color: "var(--gray-mid)", marginTop: 6, marginBottom: 28 },
   fieldWrap: { marginBottom: 16 },
   label: {
     display: "block",
     fontSize: 13,
     fontWeight: 600,
-    color: "#bfdbfe",
+    color: "var(--gray-dark)",
     marginBottom: 6,
   },
   input: {
     width: "100%",
-    background: "#0f172a",
-    border: "1.5px solid #334155",
-    borderRadius: 8,
-    padding: "10px 12px",
-    fontSize: 14,
-    color: "#e2e8f0",
-    outline: "none",
-    boxSizing: "border-box",
-    transition: "border-color 0.15s",
-  },
-  inputFocus: { borderColor: "#38bdf8" },
-  inputError: { borderColor: "#ef4444" },
-  errorMsg: { fontSize: 12, color: "#ef4444", marginTop: 5 },
-  submitBtn: {
-    width: "100%",
-    padding: "11px 0",
-    borderRadius: 8,
-    border: "none",
-    background: "#0891b2",
-    color: "#fff",
-    fontWeight: 700,
-    fontSize: 15,
-    cursor: "pointer",
-    marginTop: 18,
-    transition: "background 0.15s",
-    letterSpacing: 0.3,
-  },
-  submitBtnHover: { background: "#0e7490" },
-  submitBtnLoading: { background: "#155e75", cursor: "not-allowed" },
-  generalError: {
-    background: "#fef2f2",
-    border: "1px solid #fecaca",
-    borderRadius: 8,
+    background: "var(--white)",
+    border: "1.5px solid var(--gray-light)",
+    borderRadius: "var(--radius-md)",
     padding: "10px 14px",
     fontSize: 13,
-    color: "#b91c1c",
+    color: "var(--charcoal)",
+    outline: "none",
+    boxSizing: "border-box",
+    transition: "border-color var(--fast) var(--ease), box-shadow var(--fast) var(--ease)",
+  },
+  inputFocus: { borderColor: "var(--brand)", boxShadow: "0 0 0 3px rgba(232,64,12,0.12)" },
+  inputError: { borderColor: "var(--status-danger)", boxShadow: "0 0 0 3px rgba(217,45,32,0.10)" },
+  errorMsg: { fontSize: 12, color: "var(--status-danger)", marginTop: 5 },
+  submitBtn: {
+    width: "100%",
+    padding: "11px 20px",
+    borderRadius: "var(--radius-md)",
+    border: "none",
+    background: "var(--brand)",
+    color: "#fff",
+    fontWeight: 700,
+    fontSize: 14,
+    cursor: "pointer",
+    marginTop: 18,
+    transition: "all var(--fast) var(--ease)",
+    letterSpacing: 0.1,
+  },
+  submitBtnHover: { background: "var(--brand-hover)", transform: "translateY(-1px)", boxShadow: "0 4px 14px rgba(232,64,12,0.35)" },
+  submitBtnLoading: { background: "var(--brand-hover)", cursor: "not-allowed", opacity: 0.7 },
+  generalError: {
+    background: "var(--status-danger-bg)",
+    border: "1px solid rgba(217,45,32,0.25)",
+    borderRadius: "var(--radius-md)",
+    padding: "10px 14px",
+    fontSize: 13,
+    color: "var(--status-danger)",
     marginTop: 14,
     textAlign: "center",
   },
   generalSuccess: {
-    background: "#f0fdf4",
-    border: "1px solid #bbf7d0",
-    borderRadius: 8,
+    background: "var(--status-active-bg)",
+    border: "1px solid rgba(26,158,79,0.25)",
+    borderRadius: "var(--radius-md)",
     padding: "10px 14px",
     fontSize: 13,
-    color: "#15803d",
+    color: "var(--status-active)",
     marginTop: 14,
     textAlign: "center",
   },
   footer: {
     marginTop: 18,
     fontSize: 12,
-    color: "#94a3b8",
+    color: "var(--gray-mid)",
     textAlign: "center",
   },
   linkBtn: {
     background: "none",
     border: "none",
-    color: "#67e8f9",
+    color: "var(--brand)",
     cursor: "pointer",
     padding: 0,
     fontSize: 12,
     fontWeight: 600,
-  },
-  poweredBy: {
-    marginTop: 12,
-    textAlign: "center",
-    fontSize: 12,
-    color: "#67e8f9",
-    fontWeight: 700,
-    letterSpacing: 0.2,
   },
 };
 
@@ -232,17 +229,36 @@ export default function RegisterPage({ onGoToLogin, onRegisterSuccess }) {
   };
 
   return (
-    <div style={STYLES.page}>
-      <div style={STYLES.shell}>
-        <div style={STYLES.glowTop} />
-        <div style={STYLES.glowBottom} />
-        <div style={{ marginBottom: 4, textAlign: "center" }}>
-          <div style={STYLES.logo}>FI</div>
-          <div style={STYLES.title}>Create your account</div>
-          <div style={STYLES.subtitle}>Register to access memberships, classes, and facility support tools</div>
+    <div style={STYLES.page} className="authPage">
+      <div style={STYLES.left} className="authLeft">
+        <div style={STYLES.brandRow}>
+          <div style={STYLES.brandMark}>FI</div>
+          <h1 style={STYLES.brandName}>FitOps</h1>
         </div>
+        <div style={STYLES.tagline}>Manage memberships, classes, and gym operations — all in one place.</div>
+        <div style={STYLES.featureList}>
+          <div style={STYLES.featureRow}>
+            <span style={STYLES.featureDot} />
+            <span>Member check-ins & class scheduling</span>
+          </div>
+          <div style={STYLES.featureRow}>
+            <span style={STYLES.featureDot} />
+            <span>Equipment tickets & maintenance logs</span>
+          </div>
+          <div style={STYLES.featureRow}>
+            <span style={STYLES.featureDot} />
+            <span>Staff shifts & billing management</span>
+          </div>
+        </div>
+        <div style={STYLES.poweredByLeft}>Powered by FitOps</div>
+      </div>
 
+      <div style={STYLES.right} className="authRight">
         <div style={STYLES.card}>
+          <div style={{ marginBottom: 24 }}>
+            <div style={STYLES.cardTitle}>Create your account</div>
+            <div style={STYLES.cardSubtitle}>Welcome. Enter your details below.</div>
+          </div>
           <form onSubmit={handleSubmit} noValidate>
           <div style={STYLES.fieldWrap}>
             <label style={STYLES.label} htmlFor="fitops-name">Name</label>
@@ -346,7 +362,6 @@ export default function RegisterPage({ onGoToLogin, onRegisterSuccess }) {
           </div>
           </form>
         </div>
-        <div style={STYLES.poweredBy}>Powered by FitOps</div>
       </div>
     </div>
   );
